@@ -52,11 +52,6 @@ rawFile.createOrReplaceTempView("rawData")
 
 # COMMAND ----------
 
-# MAGIC %sql 
-# MAGIC SELECT * FROM rawData WHERE id='4832387affc268b3c9d6cca70dbdbcb4'
-
-# COMMAND ----------
-
 # MAGIC %sql
 # MAGIC SELECT COUNT(*) FROM rawData WHERE selling_price < 5
 
@@ -132,7 +127,7 @@ if files :
 
 # COMMAND ----------
 
-top5Df.write.mode("overwrite").option("header", "true").option("sep", ",").option("inferSchema", "true").format("csv").save(topOutputPath)
+top5Df.repartition(1).write.mode("overwrite").option("header", "true").option("sep", ",").option("inferSchema", "true").format("csv").save(topOutputPath)
 
 # COMMAND ----------
 
