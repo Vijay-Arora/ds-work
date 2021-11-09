@@ -1,5 +1,5 @@
 # Databricks notebook source
-# MAGIC %md Assignment Work
+# MAGIC %md Notebook designed specifically for Assignment
 
 # COMMAND ----------
 
@@ -12,6 +12,16 @@ env = dbutils.widgets.get("env")
 filename = dbutils.widgets.get("filename")
 print("env: ", env)
 print("filename: ", filename)
+
+# COMMAND ----------
+
+if (env==""):
+  dbutils.notebook.exit("ERROR : Environment is not passed correctly")
+
+# COMMAND ----------
+
+if (filename==""):
+  dbutils.notebook.exit("ERROR : Filename is not passed correctly")
 
 # COMMAND ----------
 
@@ -42,6 +52,10 @@ from pyspark.sql.functions import *
 
 # COMMAND ----------
 
+# MAGIC %md Applying the defined rules
+
+# COMMAND ----------
+
 rawFile = rawFile.withColumn("id",trim(col('Uniq Id'))).drop("Uniq Id").withColumn("selling_price",trim(regexp_replace("Selling Price",'[$]','')).cast("float")).drop("Selling Price").withColumn("sitem",trim(col('Item Sold')).cast("integer")).drop("Item Sold").withColumn("product",initcap(regexp_replace("Product Name",'[ ]',' '))).drop("Product Name").withColumn("product_url",trim(regexp_replace("Product Url",'ref=.*&',''))).drop("Product Url").withColumn("cat",trim(col('Category'))).drop("Category")
 rawFile.createOrReplaceTempView("rawData")
 
@@ -67,6 +81,10 @@ newDf.createOrReplaceTempView("filteredData")
 
 # COMMAND ----------
 
+# MAGIC %md Preparing the output data
+
+# COMMAND ----------
+
 outputDf = spark.sql("""SELECT id as `Uniq Id`,
                      selling_price as `Selling Price`,
                      sitem as `Item Sold`,
@@ -78,13 +96,16 @@ outputDf = spark.sql("""SELECT id as `Uniq Id`,
 
 # COMMAND ----------
 
-outputPath = "/mnt/cdl-{}-sandbox-zone/ds_automation_test/test/output.csv".format(env)
+outputPath = "/dbfs/mnt/cdl-{}-sandbox-zone/ds_automation_test/test/output.csv".format(env)
 print("Output File Path:", outputPath)
 
 # COMMAND ----------
 
-files = dbutils.fs.ls(outputPath)
-display(files)
+try:
+  files = dbutils.fs.ls(outputPath) #handle file not found exception when the notebook runs for first time
+  display(files)
+except Exception as ex:
+  pass
 
 # COMMAND ----------
 
@@ -97,8 +118,15 @@ outputDf.write.mode("overwrite").option("header", "true").option("sep", ",").opt
 
 # COMMAND ----------
 
-files = dbutils.fs.ls(outputPath)
-display(files)
+try:
+  files = dbutils.fs.ls(outputPath) #handle file not found exception when the notebook runs for first time
+  display(files)
+except Exception as ex:
+  pass
+
+# COMMAND ----------
+
+# MAGIC %md Top 5 categories output 
 
 # COMMAND ----------
 
@@ -112,13 +140,16 @@ SELECT id, selling_price, product, product_url, cat, sitem, topN
 
 # COMMAND ----------
 
-topOutputPath = "/mnt/cdl-{}-sandbox-zone/ds_automation_test/test/top-5-sold-by-category.csv".format(env)
-print("Output File Path:", outputPath)
+topOutputPath = "/dbfs/mnt/cdl-{}-sandbox-zone/ds_automation_test/test/top-5-sold-by-category.csv".format(env)
+print("Output File Path:", topOutputPath)
 
 # COMMAND ----------
 
-files = dbutils.fs.ls(topOutputPath) #handle file not found exception
-display(files)
+try:
+  files = dbutils.fs.ls(topOutputPath) #handle file not found exception 
+  display(files)
+except Exception as ex:
+  pass
 
 # COMMAND ----------
 
