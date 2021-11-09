@@ -7,7 +7,7 @@
 5. Pyspark
 6. AWS S3
 
-# Steps to run 
+# Steps To Run
 
 1. Download the main.py file 
 2. Import it to databricks workspace
